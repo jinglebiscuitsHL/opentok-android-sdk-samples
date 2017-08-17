@@ -52,7 +52,7 @@ public class CustomVideoCapturer extends BaseVideoCapturer implements
     public CustomVideoCapturer(Context context) {
 
         // Initialize front camera by default
-        this.mCameraIndex = getFrontCameraIndex();
+        this.mCameraIndex = getBackCameraIndex();
 
         // Get current display to query UI orientation
         WindowManager windowManager = (WindowManager) context
@@ -273,6 +273,17 @@ public class CustomVideoCapturer extends BaseVideoCapturer implements
         return 0;
     }
 
+    private static int getBackCameraIndex() {
+        for (int i = 0; i < Camera.getNumberOfCameras(); ++i) {
+            Camera.CameraInfo info = new Camera.CameraInfo();
+            Camera.getCameraInfo(i, info);
+            if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
     private void configureCaptureSize(int preferredWidth, int preferredHeight) {
         Camera.Parameters parameters = mCamera.getParameters();
 
@@ -329,7 +340,7 @@ public class CustomVideoCapturer extends BaseVideoCapturer implements
 
                 // Send frame to OpenTok
                 provideByteArrayFrame(data, NV21, mCaptureWidth,
-                        mCaptureHeight, currentRotation, isFrontCamera());
+                        mCaptureHeight, currentRotation, true);
 
                 // Reuse the video buffer
                 camera.addCallbackBuffer(data);
